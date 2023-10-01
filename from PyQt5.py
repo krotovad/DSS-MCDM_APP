@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QPushButton, QTableWidget, QTableWidgetItem, QDialog, 
                              QFileDialog, QAction, QLabel, QSizePolicy, QStackedWidget, 
                              QListWidget, QTextEdit, QAbstractItemView, QListWidgetItem, QGroupBox,
-                             QFrame, QHBoxLayout, QCheckBox)
+                             QFrame, QHBoxLayout, QCheckBox, QGridLayout)
 
 class AssessmentWindow(QWidget):
     def __init__(self, data):
@@ -19,15 +19,12 @@ class AssessmentWindow(QWidget):
         self.setGeometry(100, 100, 800, 400)
         self.setWindowTitle('Assessment Window')
 
-        main_layout = QVBoxLayout(self)
-
-        hlayout = QHBoxLayout()
+        grid_layout = QGridLayout(self)
 
         # 1. Section for List of Multicriterial Assessment Methods
         self.method_group = QGroupBox("Multicriterial Assessment Methods")
         self.method_list = QListWidget(self.method_group)
-        
-        # Adding Category Items and Method Items with CheckBoxes
+
         categories_methods = {
             'Decision Making Methods': ['TOPSIS', 'WSR'],
             'Outranking Methods': ['ELECTRE'],
@@ -36,39 +33,35 @@ class AssessmentWindow(QWidget):
 
         for category, methods in categories_methods.items():
             category_item = QListWidgetItem(category)
-            category_item.setFlags(Qt.NoItemFlags)  # Making Category Non-Selectable
+            category_item.setFlags(Qt.NoItemFlags)
             self.method_list.addItem(category_item)
-            
+
             for method in methods:
                 method_item = QListWidgetItem()
                 checkbox = QCheckBox(method)
                 self.method_list.addItem(method_item)
                 self.method_list.setItemWidget(method_item, checkbox)
                 checkbox.stateChanged.connect(self.display_info)
-        
-        hlayout.addWidget(self.method_group)
+
+        grid_layout.addWidget(self.method_group, 0, 0)
 
         # 2. Multiline Widget for Method Info
         self.info_widget = QTextEdit(self)
-        placeholder_font = QFont()
-        placeholder_font.setItalic(True)
-        self.info_widget.setFont(placeholder_font)
+        font = self.info_widget.font()
+        font.setPointSize(14)
+        self.info_widget.setFont(font)
         self.info_widget.setPlaceholderText("This widget displays information about the selected method.")
-        
-        hlayout.addWidget(self.info_widget)
+        grid_layout.addWidget(self.info_widget, 0, 1)
 
-        main_layout.addLayout(hlayout)
-
-        # 3. Additional Section
-        self.additional_section = QFrame(self)
-        main_layout.addWidget(self.additional_section)
-        self.additional_section.hide()
-
-        self.setLayout(main_layout)
+        # 3. Additional Section for Additional Inputs
+        self.additional_input = QTextEdit(self)
+        self.additional_input.setText("No additional inputs needed")
+        grid_layout.addWidget(self.additional_input, 1, 0, 1, 2)  # Spanning the widget across both columns
 
     def display_info(self):
         info = ""
         additional_section_visible = False
+        additional_inputs_needed = False
 
         method_descriptions = {
             'TOPSIS': """
@@ -116,16 +109,17 @@ class AssessmentWindow(QWidget):
             item = self.method_list.item(index)
             widget = self.method_list.itemWidget(item)
             if widget and isinstance(widget, QCheckBox) and widget.isChecked():
-                additional_section_visible = True
                 method = widget.text()
                 if method in method_descriptions:
                     info += method_descriptions[method] + "\n\n"
+                if method in ['TOPSIS', 'WSR', 'ELECTRE', 'VIKOR']:
+                    additional_inputs_needed = True
 
         self.info_widget.setText(info)
-        if additional_section_visible:
-            self.additional_section.show()
+        if additional_inputs_needed:
+            self.additional_input.setText("Additional inputs are needed for the selected method(s).")
         else:
-            self.additional_section.hide()
+            self.additional_input.setText("No additional inputs needed")
 
 
 class CalculateAlternativesWindow(QDialog):
@@ -174,7 +168,7 @@ class InputAlternativesWindow(QDialog):
         self.table = QTableWidget(self)
         self.table.setColumnCount(3)
         self.table.setRowCount(3)
-        self.table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.table.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         self.table.itemSelectionChanged.connect(self.handle_item_selection)
         
         # Place the table and button_layout in a horizontal layout
@@ -184,8 +178,9 @@ class InputAlternativesWindow(QDialog):
         
         self.main_layout.addLayout(h_layout)  # Add horizontal layout to the main layout
         self.main_layout.addLayout(self.save_cancel_layout)  # Add save_cancel_layout below the horizontal layout
-        
-        self.adjust_dialog_size()
+        self.main_layout.addStretch(1)
+        self.adjustSize()
+        #self.adjust_dialog_size()
 
     def setup_buttons(self):
         # Create Buttons
@@ -201,7 +196,7 @@ class InputAlternativesWindow(QDialog):
         self.add_remove_row_button.clicked.connect(self.add_row)
 
         # Button Layout for import and add/remove buttons
-        self.button_layout = QVBoxLayout()
+        self.button_layout = QHBoxLayout()
         self.button_layout.addWidget(self.import_csv_button)
         self.button_layout.addWidget(self.import_xlsx_button)
         self.button_layout.addWidget(self.add_remove_column_button)
@@ -214,7 +209,7 @@ class InputAlternativesWindow(QDialog):
         self.cancel_button.clicked.connect(self.reject)
 
         # Button Layout for Save and Cancel
-        self.save_cancel_layout = QVBoxLayout()  # Changed to QHBoxLayout to put buttons side by side
+        self.save_cancel_layout = QHBoxLayout()  # Changed to QHBoxLayout to put buttons side by side
         self.save_cancel_layout.addStretch(1)
         self.save_cancel_layout.addWidget(self.save_button)
         self.save_cancel_layout.addWidget(self.cancel_button)
@@ -313,27 +308,28 @@ class InputAlternativesWindow(QDialog):
 
     def update_table(self):
         self.table.clear()
-        self.table.setRowCount(min(len(self.data), 10))  # limit to 10 rows
-        self.table.setColumnCount(min(len(self.data[0]) if self.data else 0, 15))  # limit to 15 columns
+        self.table.setRowCount(len(self.data))  # limit to 10 rows
+        self.table.setColumnCount(len(self.data[0]))  # limit to 15 columns
         for row in range(len(self.data)):
             for col in range(len(self.data[row])):
                 item = QTableWidgetItem(str(self.data[row][col]))
                 item.setTextAlignment(Qt.AlignCenter)  # Set text alignment to center
                 if row < 10 and col < 15:  # only add to the table if within limits
                     self.table.setItem(row, col, item)
-        self.adjust_dialog_size()
+        #self.adjust_dialog_size()
+        self.adjustSize()
 
 
     def add_column(self):
         for row_data in self.data:
             row_data.append('')
         self.update_table()
-        self.adjust_dialog_size()
+        #self.adjust_dialog_size()
 
     def add_row(self):
         self.data.append(['' for _ in range(self.table.columnCount())])
         self.update_table()
-        self.adjust_dialog_size()
+        #self.adjust_dialog_size()
 
     def delete_column(self):
         col_index = self.table.currentColumn()
@@ -341,14 +337,14 @@ class InputAlternativesWindow(QDialog):
             for row_data in self.data:
                 del row_data[col_index]
             self.update_table()
-        self.adjust_dialog_size()
+        #self.adjust_dialog_size()
 
     def delete_row(self):
         row_index = self.table.currentRow()
         if row_index > -1:
             del self.data[row_index]
             self.update_table()
-        self.adjust_dialog_size()
+        #self.adjust_dialog_size()
     
     def get_data(self):
         return self.data
@@ -365,7 +361,7 @@ class App(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Main Layout')
-        layout = QVBoxLayout(self.central_widget)
+        layout = QHBoxLayout(self.central_widget)
 
         calculate_button = QPushButton("Calculate Alternatives")
         calculate_button.clicked.connect(self.calculate_alternatives)
@@ -376,6 +372,10 @@ class App(QMainWindow):
         self.assessment_button = QPushButton("Multicriterial Assessment")
         self.assessment_button.setEnabled(False)
         self.assessment_button.clicked.connect(self.assessment)
+
+        calculate_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        input_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.assessment_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         layout.addWidget(calculate_button)
         layout.addWidget(input_button)
@@ -396,8 +396,8 @@ class App(QMainWindow):
         window = InputAlternativesWindow()
         if window.exec_() == QDialog.Accepted:  # QDialog.Accepted is returned when 'Save' is pressed
             self.alternatives_data = window.get_data()  # Store table data as state
+            self.assessment_button.setEnabled(True)
         self.show()
-        self.assessment_button.setEnabled(True)
 
     def assessment(self):
         print("Performing Multicriterial Assessment...")
