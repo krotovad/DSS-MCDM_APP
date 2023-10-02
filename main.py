@@ -375,7 +375,7 @@ class AssessmentWindow(QWidget):
         font = self.info_widget.font()
         font.setPointSize(12)
         self.info_widget.setFont(font)
-        self.info_widget.setPlaceholderText("Здесь изображается информация о выбранных методах")
+        self.info_widget.setPlaceholderText("Здесь отображается информация о выбранных методах")
         grid_layout.addWidget(self.info_widget, 0, 1)
 
 
