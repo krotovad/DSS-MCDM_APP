@@ -9,12 +9,12 @@ from PyQt5.QtWidgets import *
 method_descriptions = {
     'MINSUM': {
         'description': (
-        'Minimum Sum (MINSUM)\n'
+        'Минимальная сумма (MINSUM)\n'
         '-------------------\n'
-        '- Approach: Aggregates the evaluations of alternatives based on the sum of their scores, giving preference to the alternatives with the lowest total score.\n'
-        '- Inputs: Requires an evaluation matrix consisting of m alternatives and n criteria.\n'
-        '- Output: A single preferred alternative.\n'
-        '- Ideal for: Problems where the decision-maker prefers to minimize the aggregate evaluations, suitable for cost minimization problems.'
+        '- Подход: Агрегирует оценки альтернатив на основе суммы их баллов, отдавая предпочтение альтернативам с наименьшим суммарным баллом.\n'
+        '- Исходные данные: Требуется матрица оценок, состоящая из m альтернатив и n критериев.\n'
+        '- Выходные данные: Одна предпочтительная альтернатива.\n'
+        '- Идеально подходит для: Задачи, в которых лицо, принимающее решение, предпочитает минимизировать совокупные оценки, подходит для задач минимизации затрат.'
         ),
         'args': [
             
@@ -22,12 +22,12 @@ method_descriptions = {
     },
     'MINMAX': {
         'description': (
-        'Minimum Maximum (MINMAX)\n'
+        'Минимум-Максимум (MINMAX)\n'
         '-----------------------\n'
-        '- Approach: Chooses the alternative that has the least maximum value, minimizing the worst-case outcome.\n'
-        '- Inputs: Requires an evaluation matrix consisting of m alternatives and n criteria.\n'
-        '- Output: A single preferred alternative.\n'
-        '- Ideal for: Decision-making situations where risk avoidance is crucial, and the decision-maker wants to avoid the worst possible outcome.'
+        '- Подход: Выбирается альтернатива, которая имеет наименьшее максимальное значение, минимизируя наихудший исход.\n'
+        '- Исходные данные: Требуется матрица оценки, состоящая из m альтернатив и n критериев.\n'
+        '- Выходные данные: Одна предпочтительная альтернатива.\n'
+        '- Идеально подходит для: Ситуации принятия решений, когда избежание риска имеет решающее значение, и лицо, принимающее решение, хочет избежать наихудшего возможного исхода.'
         ),
         'args': [
             
@@ -35,24 +35,24 @@ method_descriptions = {
     },
     'MAXMIN': {
         'description': (
-        'Maximum Minimum (MAXMIN)\n'
+        'Максимум-Минимум (MAXMIN)\n'
         '-----------------------\n'
-        '- Approach: Selects the alternative that has the greatest minimum value, maximizing the worst-case outcome.\n'
-        '- Inputs: Requires an evaluation matrix consisting of m alternatives and n criteria.\n'
-        '- Output: A single preferred alternative.\n'
-        '- Ideal for: Scenarios focusing on benefiting the most from the least favorable conditions, suitable for robustness analysis.'
+        '- Подход: Выбирается альтернатива, имеющая наибольшее минимальное значение, максимизирующая наихудший исход.\n'
+        '- Исходные данные: Требуется матрица оценки, состоящая из m альтернатив и n критериев.\n'
+        '- Выходные данные: Одна предпочтительная альтернатива.\n'
+        '- Идеально подходит для: Сценарии, ориентированные на извлечение наибольшей выгоды из наименее благоприятных условий, пригодные для анализа устойчивости.'
         ),
         'args': [
             
         ]
-    },'TOPSIS': {
+    }, 'TOPSIS': {
         'description': (
-            'Technique for Order of Preference by Similarity to Ideal Solution (TOPSIS)\n'
+            'Техника упорядочивания предпочтений по сходству с идеальным решением (TOPSIS)\n'
             '-----------------------------------------\n'
-            '- Approach: Compares each alternative against a theoretically ideal solution.\n'
-            '- Inputs: Requires an evaluation matrix consisting of m alternatives and n criteria.\n'
-            '- Output: Ranking of alternatives.\n'
-            '- Ideal for: Problems where the best alternative needs to be chosen out of a given set.'
+            '- Подход: Сравнивает каждую альтернативу с теоретически идеальным решением.\n'
+            '- Исходные данные: Требуется матрица оценки, состоящая из m альтернатив и n критериев.\n'
+            '- Выходные данные: Ранжирование альтернатив.\n'
+            '- Идеально подходит для: Задачи, в которых необходимо выбрать лучшую альтернативу из заданного множества.'
         ),
         'args': [
             {
@@ -64,12 +64,12 @@ method_descriptions = {
     },
     'WSR': {
         'description': (
-            'Weighted Sum Model (WSM) or Weighted Linear Combination\n'
+            'Weighted Sum Model (WSM) или Weighted Linear Combination\n'
             '----------------------------------------------------\n'
-            '- Approach: Assigns weights based on the importance of each criterion.\n'
-            '- Inputs: Scores of each alternative on each criterion.\n'
-            '- Output: Single overall score for each alternative.\n'
-            '- Ideal for: Situations where trade-offs between criteria are possible.'
+            '- Подход: Присваивает веса в зависимости от важности каждого критерия.\n'
+            '- Входы: Баллы каждой альтернативы по каждому критерию.\n'
+            '- Выходные данные: Единая общая оценка для каждой альтернативы.\n'
+            '- Идеально подходит для: Ситуации, когда возможны компромиссы между критериями.'
         ),
         'args': [
             {
@@ -77,17 +77,17 @@ method_descriptions = {
                 'type': 'multiple',
                 'applies_to': 'each_criteria'
             },
-            # Add other arguments if needed
+            # При необходимости добавьте другие аргументы
         ]
     },
     'ELECTRE': {
         'description': (
             'Elimination Et Choix Traduisant la Realité (ELECTRE)\n'
             '---------------------------------------------------\n'
-            '- Approach: Eliminates alternatives that do not meet certain criteria.\n'
-            '- Inputs: Performance table consisting of the performance of each alternative on each criterion.\n'
-            '- Output: Partial pre-order of alternatives.\n'
-            '- Ideal for: Problems with conflicting criteria where a set of all potential good solutions is needed.'
+            '- Подход: Исключает альтернативы, которые не соответствуют определенным критериям.\n'
+            '- Исходные данные: Таблица характеристик, состоящая из характеристик каждой альтернативы по каждому критерию.\n'
+            '- Выходные данные: Частичный предварительный порядок альтернатив.\n'
+            '- Идеально подходит для: Задачи с противоречивыми критериями, где требуется набор всех потенциально хороших решений.'
         ),
         'args': [
             {
@@ -97,20 +97,20 @@ method_descriptions = {
             },
             {
                 'name': 'Discordance Threshold',
-                'type': 'singular',
+                'type':'singular',
                 'applies_to': 'all'
             },
-            # Add other arguments if needed
+            # При необходимости добавьте другие аргументы
         ]
     },
     'VIKOR': {
         'description': (
-            "VlseKriterijumska Optimizacija I Kompromisno Resenje (VIKOR)\n"
-            "----------------------------------------------------------\n"
-            "- Approach: Introduces the multi-criteria ranking index based on the particular measure of 'closeness' to the 'ideal' solution.\n"
-            "- Inputs: Matrix of alternative assessments according to all criteria.\n"
-            "- Output: Compromise solution and ranking list.\n"
-            "- Ideal for: Societal decision-making problems, especially for resolving the water resources allocation problem."
+            'VlseKriterijumska Optimizacija I Kompromisno Resenje (VIKOR)\n'
+            '----------------------------------------------------------\n'
+            '- Подход: Представляет многокритериальный ранжирующий индекс, основанный на конкретной мере "близости" к "идеальному" решению.\n'
+            '- Исходные данные: Матрица оценок альтернатив по всем критериям.\n'
+            '- Выходные данные: Компромиссное решение и список ранжирования.\n'
+            '- Идеально подходит для: Общественные проблемы принятия решений, особенно для решения проблемы распределения водных ресурсов.'
         ),
         'args': [
             {
@@ -118,7 +118,6 @@ method_descriptions = {
                 'type': 'multiple',
                 'applies_to': 'each_criteria'
             },
-            # Add other arguments if needed
         ]
     }
 }
@@ -164,10 +163,10 @@ class ResultsWindow(QWidget):
 
         results_layout.addWidget(self.tabs, 1)
                        
-        self.pareto_button = QPushButton("Pareto sort")
+        self.pareto_button = QPushButton("Сортировка по Парето")
         self.pareto_button.clicked.connect(self.toggle_pareto)
 
-        self.cancel_button = QPushButton("Cancel", self)
+        self.cancel_button = QPushButton("Отмена", self)
         self.cancel_button.clicked.connect(self.close)
         
         main_layout.addLayout(data_display_layout, 1)
@@ -179,9 +178,9 @@ class ResultsWindow(QWidget):
     def toggle_pareto(self):       
         self.is_pareto = not self.is_pareto  # Toggle the state
         if self.is_pareto:
-            self.pareto_button.setText("Data AS-IS")            
+            self.pareto_button.setText("Данные AS-IS")            
         else:
-            self.pareto_button.setText("Pareto sort")
+            self.pareto_button.setText("Сортировка по Парето")
         self.setDataTable()  # Update the table according to the new state
         tabs = self.tabs  # Assuming this is your QTabWidget instance
 
@@ -340,21 +339,21 @@ class AssessmentWindow(QWidget):
 
     def initUI(self):
         self.setGeometry(100, 100, 1300, 600)
-        self.setWindowTitle('Assessment Window')
+        self.setWindowTitle('Определение настроек оценки')
         self.selected_methods = []
         self.additional_inputs = {}
 
         grid_layout = QGridLayout(self)
 
         # 1. Section for List of Multicriterial Assessment Methods
-        self.method_group = QGroupBox("Multicriterial Assessment Methods")
+        self.method_group = QGroupBox("Методы многокритериальной оценки")
         self.method_list = QListWidget(self.method_group)
 
         categories_methods = {
-            'Primitives': ['MINSUM', 'MINMAX', 'MAXMIN'],
-            'Decision Making Methods': ['TOPSIS', 'WSR'],
-            'Outranking Methods': ['ELECTRE'],
-            'Compromise Ranking Methods': ['VIKOR']
+            'Примитивы': ['MINSUM', 'MINMAX', 'MAXMIN'],
+            'Методы принятия решений': ['TOPSIS', 'WSR'],
+            'Методы анализа предпочтений': ['ELECTRE'],
+            'Методы установления компромиссов': ['VIKOR']
         }
 
         for category, methods in categories_methods.items():
@@ -376,20 +375,23 @@ class AssessmentWindow(QWidget):
         font = self.info_widget.font()
         font.setPointSize(12)
         self.info_widget.setFont(font)
-        self.info_widget.setPlaceholderText("This widget displays information about the selected method.")
-        grid_layout.addWidget(self.info_widget, 0, 2)
+        self.info_widget.setPlaceholderText("Здесь изображается информация о выбранных методах")
+        grid_layout.addWidget(self.info_widget, 0, 1)
 
-        self.resultsButton = QPushButton("Save and Continue")
-        self.resultsButton.clicked.connect(lambda: self.showResults(self.data, self.selected_methods, self.read_input_fields()))
-        grid_layout.addWidget(self.resultsButton, 1, 2)
 
         # 3. Additional Section for Additional Inputs
-        self.additional_inputs_group = QGroupBox("Additional Inputs")
+        self.additional_inputs_group = QGroupBox("Дополнительные параметры")
         self.form_layout = QFormLayout()
         self.input_instruction_label = QLabel()
         self.form_layout.addRow(self.input_instruction_label)
         self.additional_inputs_group.setLayout(self.form_layout)
-        grid_layout.addWidget(self.additional_inputs_group, 1, 0)
+        grid_layout.addWidget(self.additional_inputs_group, 1, 1)
+
+        
+        self.resultsButton = QPushButton("Сохранить и Продолжить")
+        self.resultsButton.clicked.connect(lambda: self.showResults(self.data, self.selected_methods, self.read_input_fields()))
+        grid_layout.addWidget(self.resultsButton, 2, 1)
+
         grid_layout.setRowStretch(0, 1)  # Stretch the first row so that it takes up the available space
         grid_layout.setRowStretch(1, 0)  # Do not stretch the second row
         #self.additional_inputs_group.hide()  # Hide by default
@@ -451,7 +453,7 @@ class AssessmentWindow(QWidget):
         
         if self.form_layout.count() > 0:
             self.additional_inputs_group.show()
-            print(f"Additional Inputs Group is Visible: {self.additional_inputs_group.isVisible()}")
+            #print(f"Additional Inputs Group is Visible: {self.additional_inputs_group.isVisible()}")
         else:
             self.additional_inputs_group.hide()
 
@@ -486,10 +488,10 @@ class CalculateAlternativesWindow(QDialog):
 
         layout = QVBoxLayout()
 
-        save_button = QPushButton("Save")
+        save_button = QPushButton("Сохранить")
         save_button.clicked.connect(self.save_pressed)
 
-        cancel_button = QPushButton("Cancel")
+        cancel_button = QPushButton("Отмена")
         cancel_button.clicked.connect(self.close)
 
         layout.addWidget(save_button)
@@ -499,7 +501,7 @@ class CalculateAlternativesWindow(QDialog):
         self.save_pressed_flag = False
 
     def save_pressed(self):
-        print("Save pressed in Calculate Alternatives window")
+        #print("Save pressed in Calculate Alternatives window")
         self.save_pressed_flag = True
         self.close()
 
@@ -541,10 +543,10 @@ class InputAlternativesWindow(QDialog):
 
     def setup_buttons(self):
         # Create Buttons
-        self.import_csv_button = QPushButton("Import from CSV", self)
-        self.import_xlsx_button = QPushButton("Import from XLSX", self)
-        self.add_remove_column_button = QPushButton("Add Column", self)
-        self.add_remove_row_button = QPushButton("Add Row", self)
+        self.import_csv_button = QPushButton("Импорт из CSV", self)
+        self.import_xlsx_button = QPushButton("Импорт из XLSX", self)
+        self.add_remove_column_button = QPushButton("Добавить столбец", self)
+        self.add_remove_row_button = QPushButton("Добавить строку", self)
 
         # Connect Buttons
         self.import_csv_button.clicked.connect(self.import_csv)
@@ -560,8 +562,8 @@ class InputAlternativesWindow(QDialog):
         self.button_layout.addWidget(self.add_remove_row_button)
 
         # Save and Cancel Buttons
-        self.save_button = QPushButton("Save", self)
-        self.cancel_button = QPushButton("Cancel", self)
+        self.save_button = QPushButton("Сохранить", self)
+        self.cancel_button = QPushButton("Отмена", self)
         self.save_button.clicked.connect(self.accept)
         self.cancel_button.clicked.connect(self.reject)
 
@@ -605,11 +607,11 @@ class InputAlternativesWindow(QDialog):
         super(InputAlternativesWindow, self).mousePressEvent(event)
     
     def reset_buttons(self):
-        self.add_remove_row_button.setText("Add Row")
+        self.add_remove_row_button.setText("Добавить строку")
         self.add_remove_row_button.disconnect()
         self.add_remove_row_button.clicked.connect(self.add_row)
 
-        self.add_remove_column_button.setText("Add Column")
+        self.add_remove_column_button.setText("Добавить столбец")
         self.add_remove_column_button.disconnect()
         self.add_remove_column_button.clicked.connect(self.add_column)
     
@@ -619,26 +621,26 @@ class InputAlternativesWindow(QDialog):
             rows = set(index.row() for index in selected_indices)
             columns = set(index.column() for index in selected_indices)
             if len(rows) == 1:
-                self.add_remove_row_button.setText("Delete Row")
+                self.add_remove_row_button.setText("Удалить строку")
                 self.add_remove_row_button.disconnect()
                 self.add_remove_row_button.clicked.connect(self.delete_row)
             else:
-                self.add_remove_row_button.setText("Add Row")
+                self.add_remove_row_button.setText("Добавить строку")
                 self.add_remove_row_button.disconnect()
                 self.add_remove_row_button.clicked.connect(self.add_row)
 
             if len(columns) == 1:
-                self.add_remove_column_button.setText("Delete Column")
+                self.add_remove_column_button.setText("Удалить столбец")
                 self.add_remove_column_button.disconnect()
                 self.add_remove_column_button.clicked.connect(self.delete_column)
             else:
-                self.add_remove_column_button.setText("Add Column")
+                self.add_remove_column_button.setText("Добавить столбец")
                 self.add_remove_column_button.disconnect()
                 self.add_remove_column_button.clicked.connect(self.add_column)
 
     def import_csv(self):
         options = QFileDialog.Options()
-        filePath, _ = QFileDialog.getOpenFileName(self, "Open CSV File", "", "CSV Files (*.csv);;All Files (*)", options=options)
+        filePath, _ = QFileDialog.getOpenFileName(self, "Открыть CSV файл", "", "CSV Files (*.csv);;All Files (*)", options=options)
         if filePath:
             with open(filePath, 'r', newline='', encoding='utf-8') as file:
                 self.data = []
@@ -656,7 +658,7 @@ class InputAlternativesWindow(QDialog):
 
     def import_xlsx(self):
         options = QFileDialog.Options()
-        filePath, _ = QFileDialog.getOpenFileName(self, "Open XLSX File", "", "XLSX Files (*.xlsx);;All Files (*)", options=options)
+        filePath, _ = QFileDialog.getOpenFileName(self, "Открыть XLSX файл", "", "XLSX Files (*.xlsx);;All Files (*)", options=options)
         if filePath:
             book = openpyxl.load_workbook(filePath, read_only=True)
             sheet = book.active
@@ -710,9 +712,9 @@ class ClickableTextItem(QGraphicsTextItem):
         super().__init__(text, parent)
         self.setAcceptHoverEvents(True)
         self.filename = filename
-        print(f"list_widget2 in __init__: {list_widget2}")
-        self.list_widget2 = list_widget2
-        print(f"self.list_widget2 in __init__: {self.list_widget2}")
+        #print(f"list_widget2 in __init__: {list_widget2}")
+        #self.list_widget2 = list_widget2
+        #print(f"self.list_widget2 in __init__: {self.list_widget2}")
         
         # Set Flags
         self.setFlag(QGraphicsItem.ItemIsSelectable)
@@ -758,7 +760,7 @@ class ClickableTextItem(QGraphicsTextItem):
                 if table == table_name:  # skip the given table
                     continue
                 
-                print(f"Examining table: {table}")  # Debugging line
+                #print(f"Examining table: {table}")  # Debugging line
                 
                 cursor.execute(f"PRAGMA foreign_key_list({table})")
                 foreign_keys = cursor.fetchall()
@@ -767,17 +769,17 @@ class ClickableTextItem(QGraphicsTextItem):
                     ref_table = fk[2]  # Reference table
                     ref_attribute = fk[3]  # Reference attribute (from column)
                     
-                    print(f"ref_table: {ref_table}, ref_attribute: {ref_attribute}")  # Debugging line
+                    #print(f"ref_table: {ref_table}, ref_attribute: {ref_attribute}")  # Debugging line
                     
                     if ref_table == table_name and ref_attribute == attribute_name:
-                        print(f"Match Found! Examining Columns of table: {table}")  # Debugging line
+                        #print(f"Match Found! Examining Columns of table: {table}")  # Debugging line
                         cursor.execute(f"PRAGMA table_info({table})")
                         table_columns = cursor.fetchall()
                         for col in table_columns:
                             is_pk = col[5]  # col[5] is pk column in PRAGMA output
                             col_name = col[1]  # col[1] is the name column in PRAGMA output
                             if is_pk:
-                                print(f"Adding: {col_name} to within_database_attributes")  # Debugging line
+                                #print(f"Adding: {col_name} to within_database_attributes")  # Debugging line
                                 within_database_attributes.append(col_name)
         else:
             # If not a key, only list all attributes from the same table (both key and non-key)
@@ -789,44 +791,44 @@ class ClickableTextItem(QGraphicsTextItem):
     
     def populate_related_attributes(self):
         # Get the reference to the second list widget from the main app or another suitable place.
-        print("populate_related_attributes called")  # Debugging line
+        #print("populate_related_attributes called")  # Debugging line
         second_list_widget = self.list_widget2
         
-        print(f"self.list_widget2 in populate_related_attributes: {self.list_widget2}")
+        #print(f"self.list_widget2 in populate_related_attributes: {self.list_widget2}")
         second_list_widget = self.list_widget2
-        print(second_list_widget)
+        #print(second_list_widget)
         if second_list_widget is not None:
-            print("Second list widget found")  # Debugging line
+            #print("Second list widget found")  # Debugging line
             second_list_widget.clear()
             
             # Retrieve the parent_table object using the parentItem() method.
             parent_table = self.parentItem()
             
             if parent_table:
-                print("parent_table found")  # Debugging line
+                #print("parent_table found")  # Debugging line
                 attribute_name = self.toPlainText().split(" ")[0]  # Extract attribute name from displayed text
                 table_name = parent_table.tableName  # Replace with the actual way to get table name from parent_table object
                 
                 # Get the related attributes by calling the function
-                print(f"Calling get_related_attributes with attribute_name={attribute_name}, table_name={table_name}")  # Debugging line
+                #print(f"Calling get_related_attributes with attribute_name={attribute_name}, table_name={table_name}")  # Debugging line
                 try:
                     is_key, within_table_attributes, within_database_attributes = ClickableTextItem.get_related_attributes(attribute_name, table_name, self.filename)
                 except Exception as e:
                     print(f"Error in calling get_related_attributes: {str(e)}")
 
                 # If the attribute is a key, populate the widget with related attributes
-                print(f"is_key={is_key}, within_table_attributes={within_table_attributes}, within_database_attributes={within_database_attributes}")  # Debugging line
+                #print(f"is_key={is_key}, within_table_attributes={within_table_attributes}, within_database_attributes={within_database_attributes}")  # Debugging line
                 if is_key:
-                    second_list_widget.addItem("Within Table:")
+                    second_list_widget.addItem("В выбранной таблице:")
                     for attribute in within_table_attributes:
                         second_list_widget.addItem(f"  {attribute}")
 
-                    second_list_widget.addItem("Within Database:")
+                    second_list_widget.addItem("В остальной Базе Данных:")
                     for attribute in within_database_attributes:
                         second_list_widget.addItem(f"  {attribute}")
                 else:
                     # If not a key, just add the 'Within Table' category
-                    second_list_widget.addItem("Within Table:")
+                    second_list_widget.addItem("В выбранной таблице:")
                     for attribute in within_table_attributes:
                         second_list_widget.addItem(f"  {attribute}")
 
@@ -851,7 +853,7 @@ class ClickableTextItem(QGraphicsTextItem):
             print("list_widget1 is None")
         else:
             print("list_widget1 is not None")
-            print(f"Adding {self.toPlainText()} to the list")
+            #print(f"Adding {self.toPlainText()} to the list")
             self.list_widget1.addItem(self.toPlainText())
 
     def remove_from_list(self):
@@ -859,7 +861,7 @@ class ClickableTextItem(QGraphicsTextItem):
             print("list_widget is None")
         else:
             print("list_widget is not None")
-            print(f"Removing {self.toPlainText()} from the list")
+            #print(f"Removing {self.toPlainText()} from the list")
             items = self.list_widget1.findItems(self.toPlainText(), Qt.MatchExactly)
             for item in items:
                 row = self.list_widget1.row(item)
@@ -981,7 +983,7 @@ class CalculateAlternativesWindow(QWidget):
         # First ListWidget and its GroupBox
         self.table_list1 = QListWidget()
         self.table_list1.setStyleSheet("background-color: #F0F0F0;")
-        list_group_box1 = QGroupBox("Selected criteria:")
+        list_group_box1 = QGroupBox("Выбранные аттрибуты:")
         list_group_box1.setLayout(QVBoxLayout())
         list_group_box1.layout().addWidget(self.table_list1)
         right_layout.addWidget(list_group_box1)
@@ -989,13 +991,13 @@ class CalculateAlternativesWindow(QWidget):
         # Second ListWidget and its GroupBox
         self.table_list2 = QListWidget()
         self.table_list2.setStyleSheet("background-color: #F0F0F0;")
-        list_group_box2 = QGroupBox("Suggested criteria")
+        list_group_box2 = QGroupBox("Рекомендуемые аттрибуты:")
         list_group_box2.setLayout(QVBoxLayout())
         list_group_box2.layout().addWidget(self.table_list2)
         right_layout.addWidget(list_group_box2)
 
         #Button for continuing
-        continueButton = QPushButton("Continue")
+        continueButton = QPushButton("Далее")
         right_layout.addWidget(continueButton)
         
         # Add Left and Right Widgets to Main Layout
@@ -1004,7 +1006,7 @@ class CalculateAlternativesWindow(QWidget):
         
         # Window Setup
         self.setGeometry(100, 100, 1300, 600)  # Adjusted the window width
-        self.setWindowTitle('DB Infological Model')
+        self.setWindowTitle('Определение аттрибутов из БД')
         
         self.center_on_screen()
         self.show()
@@ -1025,7 +1027,7 @@ class CalculateAlternativesWindow(QWidget):
     def openFileNameDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
-        fileName, _ = QFileDialog.getOpenFileName(self, "Open SQLite Database", "", "SQLite Databases (*.db);;All Files (*)", options=options)
+        fileName, _ = QFileDialog.getOpenFileName(self, "Открыть файл БД SQLite", "", "SQLite Databases (*.db);;All Files (*)", options=options)
         if fileName:
             self.loadTables(fileName)
     
@@ -1095,16 +1097,16 @@ class App(QMainWindow):
         self.assessment_window = None
 
     def initUI(self):
-        self.setWindowTitle('Main Layout')
+        self.setWindowTitle('Многокритериальная оценка данных')
         layout = QVBoxLayout(self.central_widget)
 
-        calculate_button = QPushButton("Calculate Alternatives")
+        calculate_button = QPushButton("Определить альтернативы")
         calculate_button.clicked.connect(self.calculate_alternatives)
 
-        input_button = QPushButton("Input Alternatives")
+        input_button = QPushButton("Ввести альтернативы")
         input_button.clicked.connect(self.input_alternatives)
 
-        self.assessment_button = QPushButton("Multicriterial Assessment")
+        self.assessment_button = QPushButton("Определить параметры оценки")
         self.assessment_button.setEnabled(False)
         self.assessment_button.clicked.connect(self.assessment)
 
@@ -1126,14 +1128,12 @@ class App(QMainWindow):
         self.move(frame_geometry.topLeft())
     
     def calculate_alternatives(self):
-        print("Calculating Alternatives...")
         self.dbwindow = CalculateAlternativesWindow()
         self.dbwindow.show()
         if self.dbwindow.close:
             self.assessment_button.setEnabled(True)
 
     def input_alternatives(self):
-        print("Inputting Alternatives...")
         self.hide()
         window = InputAlternativesWindow()
         if window.exec_() == QDialog.Accepted:  # QDialog.Accepted is returned when 'Save' is pressed
@@ -1143,7 +1143,6 @@ class App(QMainWindow):
         self.show()
 
     def assessment(self):
-        print("Performing Multicriterial Assessment...")
         self.hide()
         self.assessment_window = AssessmentWindow(self.alternatives_data)
         self.assessment_window.show()
