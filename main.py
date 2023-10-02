@@ -321,8 +321,6 @@ class ResultsWindow(QWidget):
         ranked_alternatives = sorted(separation_measures, key=lambda x: x[0], reverse=True)
         return ranked_alternatives
 
-
-
     def electre(data):
         # This is a placeholder. ELECTRE usually involves a more complex procedure with concordance and discordance indices, thresholds, etc.
         return [sum(alternative[1:]) for alternative in data]  # placeholder, please replace with actual implementation
@@ -400,12 +398,10 @@ class AssessmentWindow(QWidget):
         #self.additional_inputs = dict()
         
     def showResults(self, data, methods, inputs):
-        print(data, methods, inputs)
-        self.hide()        
+        #print(data, methods, inputs)    
         self.resultsWindow = ResultsWindow(data, methods, inputs)
         self.resultsWindow.show()
-        self.center_on_screen()
-        self.show()        
+        self.center_on_screen()     
     
     def showEvent(self, event):
         self.center_on_screen()
