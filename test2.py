@@ -124,127 +124,205 @@ method_descriptions = {
 }
 
 class ResultsWindow(QWidget):
-    def __init__(self, data, methods, inputs):
-        super(ResultsWindow, self).__init__()
-
-        # Initialize class variables with the provided arguments
-        self.data = data
+    def __init__(self, data, methods, inputs, parent=None):
+        super(ResultsWindow, self).__init__(parent)
+        
+        self.data = data  # Original data
         self.methods = methods
         self.inputs = inputs
-
+        self.is_pareto = False  # Flag to check whether to show Pareto front or original data
+        
         self.initUI()
-
+        
     def initUI(self):
         main_layout = QVBoxLayout()
         data_display_layout = QHBoxLayout()
-
-        # 1. Display Data
-        data_label = QLabel('Data:')
-        data_display_layout.addWidget(data_label)
-
+        
+        # 1. Display Data        
         self.data_table = QTableWidget()
         self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
-        self.setDataTable()
+        self.setDataTable()  # Set the table data when the window is loaded
         data_display_layout.addWidget(self.data_table, 1)
-
-        paretoButton = QPushButton("Sort out Non-Optimal alternatives")
-        paretoButton.clicked.connect(self.paretoCleanUp)
-        data_display_layout.addWidget(paretoButton)
         
-        #2. results section
+        # 2. Results section
         results_layout = QHBoxLayout()
-        tabs = QTabWidget()
-        tabs_layout = QHBoxLayout()
-        for method in self.methods:
-            print(method)
-            tab = QWidget()
-            tab_layout = QVBoxLayout(tab)  # Create a layout for the tab
-            tabs.addTab(tab, method)  # Add the tab to the QTabWidget with the name from the list
-            
-        tabs_layout.addWidget(tabs)
-        
-        results_layout.addLayout(tabs_layout, 1)
 
+        self.tabs = QTabWidget()
+
+        for method in self.methods:
+            tab = QWidget()
+            tab_layout = QHBoxLayout(tab)  # Assign the layout directly to the tab
+
+            results_table = QTableWidget()
+            self.update_results(results_table, method)  # Assuming you'll write this function later
+
+            tab_layout.addWidget(results_table)  # Add the table to the left of the layout
+            # Here, you can add additional widgets to the tab_layout if needed
+            
+            tab.setLayout(tab_layout)  # Set the layout for the tab
+            self.tabs.addTab(tab, method)  # Add the tab to the QTabWidget
+
+        results_layout.addWidget(self.tabs, 1)
+                       
+        self.pareto_button = QPushButton("Pareto sort")
+        self.pareto_button.clicked.connect(self.toggle_pareto)
+
+        self.cancel_button = QPushButton("Cancel", self)
+        self.cancel_button.clicked.connect(self.close)
+        
         main_layout.addLayout(data_display_layout, 1)
         main_layout.addLayout(results_layout, 1)
+        main_layout.addWidget(self.pareto_button)
+        main_layout.addWidget(self.cancel_button)
         self.setLayout(main_layout)
+        
+    def toggle_pareto(self):       
+        self.is_pareto = not self.is_pareto  # Toggle the state
+        if self.is_pareto:
+            self.pareto_button.setText("Data AS-IS")            
+        else:
+            self.pareto_button.setText("Pareto sort")
+        self.setDataTable()  # Update the table according to the new state
+        tabs = self.tabs  # Assuming this is your QTabWidget instance
 
-    def pareto_dominance(data):
-        pareto_front = []  # List to store the pareto front alternatives
-        for i, alt1 in enumerate(data):
-            dominated = False  # Initially, assume alt1 is not dominated by any alternative
-            for j, alt2 in enumerate(data):
-                if i != j:  # Ensure we are not comparing the alternative with itself
-                    if all(a >= b for a, b in zip(alt1[1:], alt2[1:])) and any(a > b for a, b in zip(alt1[1:], alt2[1:])):
-                        # alt2 dominates alt1
-                        dominated = True
-                        break  # No need to compare with other alternatives
-            if not dominated:
-                pareto_front.append(alt1)  # alt1 is not dominated by any alternative, so it is part of the Pareto front
-        return pareto_front
-    
-    def minsum(self):
-        minsum_list = []
-        for row in self.data:
-            # Assuming the first element in each row is the alternative name
-            # So, we skip it during the sum operation
-            sum_value = sum(row[1:]) 
-            minsum_list.append([sum_value] + [row[0]])  # [sum_value, alternative_name]
+        for index in range(tabs.count()):  # Iterating over all tabs
+            tab = tabs.widget(index)  # Getting the QWidget instance representing the tab
+            title = tabs.tabText(index)            
+            layout = tab.layout()  # Getting the layout of the tab. Assuming there is a layout.
             
-        # Sort the list in ascending order of sum_value
+            # Iterate over all widgets in the layout to find QTableWidget instances
+            for i in range(layout.count()):
+                widget = layout.itemAt(i).widget()
+                
+                if isinstance(widget, QTableWidget):  # Checking if the widget is a QTableWidget
+                    # Now 'widget' refers to the QTableWidget instance in the current tab.
+                    # You can perform your operations on this table widget instance.
+                    self.update_results(widget, title)
+    
+    def setDataTable(self):
+        data = self.pareto_dominance(self.data) if self.is_pareto else self.data  # Choose data according to the state
+        row_count = len(data)
+        col_count = len(data[0])
+        self.data_table.setRowCount(row_count)
+        self.data_table.setColumnCount(col_count)
+        
+        for row_index, row_data in enumerate(data):
+            for col_index, cell_data in enumerate(row_data):
+                self.data_table.setItem(row_index, col_index, QTableWidgetItem(str(round(cell_data,3))))
+                
+    def read_table_data(self, data_table):
+        rows = data_table.rowCount()
+        cols = data_table.columnCount()
+        data = []
+        for row in range(rows):
+            row_data = []
+            for col in range(cols):
+                item = data_table.item(row, col)
+                if item and item.text():
+                    row_data.append(float(item.text()))  # assuming all cells contain numeric data
+            data.append(row_data)
+        return data
+
+    
+    def pareto_dominance(self, data):
+        if not data or not isinstance(data, list) or len(data) < 2:
+            return []
+        
+        pareto_front = []
+        for i, alt1 in enumerate(data):
+            dominated = False
+            for j, alt2 in enumerate(data):
+                if i != j:
+                    if all(a >= b for a, b in zip(alt1, alt2)) and any(a > b for a, b in zip(alt1, alt2)):
+                        dominated = True
+                        break
+            if not dominated:
+                pareto_front.append(alt1)
+        return pareto_front
+
+    def update_results(self, results_table, method):
+        # Make a dictionary of method names and their corresponding functions
+        methods_dict = {
+            "MINSUM": self.minsum,
+            "MINMAX": self.minmax,
+            "MAXMIN": self.maxmin,
+            "TOPSIS": self.topsis
+            # Add other methods as needed
+        }
+        
+        # Call the appropriate method and get the results
+        method_name = method.upper()  # Convert method name to upper case to match the keys in methods_dict
+        if method_name in methods_dict:
+            results = methods_dict[method_name]()
+            results = [[row[0]] + [round(val, 3) if isinstance(val, float) else val for val in row[1:]] for row in results]
+        else:
+            print(f"Method {method_name} not found.")
+            return
+        
+        # Now, fill the results_table with the results obtained from the method call
+        row_count = len(results)
+        col_count = len(results[0]) if results else 0  # Avoid IndexError in case results is an empty list
+        
+        results_table.setRowCount(row_count)
+        results_table.setColumnCount(col_count)
+        
+        for row_index, row_data in enumerate(results):
+            for col_index, col_data  in enumerate(row_data):
+                results_table.setItem(row_index, col_index, QTableWidgetItem(str(round(col_data, 3))))
+
+    def minsum(self):
+        data = self.read_table_data(self.data_table)
+        minsum_list = []
+        for row in data:
+            sum_value = sum(row)
+            minsum_list.append([sum_value] + row)
         minsum_list.sort(key=lambda x: x[0])
         return minsum_list
 
     def minmax(self):
+        data = self.read_table_data(self.data_table)
         minmax_list = []
-        for row in self.data:
-            minmax_value = max(row[1:])  # Skip the first element as it's the alternative name
-            minmax_list.append([minmax_value] + [row[0]])  # [minmax_value, alternative_name]
-
-        # Sort the list in ascending order of minmax_value, so as to minimize the maximum value
+        for row in data:
+            minmax_value = max(row)
+            minmax_list.append([minmax_value] + row)
         minmax_list.sort(key=lambda x: x[0])
         return minmax_list
 
 
     def maxmin(self):
+        data = self.read_table_data(self.data_table)
         maxmin_list = []
-        for row in self.data:
-            maxmin_value = min(row[1:])  # Skip the first element as it's the alternative name
-            maxmin_list.append([maxmin_value] + [row[0]])  # [maxmin_value, alternative_name]
-
-        # Sort the list in descending order of maxmin_value, so as to maximize the minimum value
+        for row in data:
+            maxmin_value = min(row)
+            maxmin_list.append([maxmin_value] + row)
         maxmin_list.sort(key=lambda x: x[0], reverse=True)
         return maxmin_list
 
+
     def topsis(self):
-        # Ensure the weights are in float
+        data = self.read_table_data(self.data_table)
         weights = [float(weight) for weight in self.inputs]
-        
-        # Get the normalized decision matrix
+
         normalized_decision_matrix = []
-        for col in range(1, len(self.data[0])):
-            column = [row[col] for row in self.data]
-            norm = (sum(x**2 for x in column)) ** 0.5
+        for col in range(len(data[0])):
+            column = [row[col] for row in data]
+            norm = (sum(x ** 2 for x in column)) ** 0.5
             normalized_decision_matrix.append([x / norm for x in column])
-        
-        # Get the weighted normalized decision matrix
+
         weighted_normalized_decision_matrix = [[val * weights[i] for val in col] for i, col in enumerate(normalized_decision_matrix)]
-        
-        # Determine the ideal and negative-ideal solutions
         ideal_solution = [max(col) for col in weighted_normalized_decision_matrix]
         negative_ideal_solution = [min(col) for col in weighted_normalized_decision_matrix]
-        
-        # Calculate the separation measures
+
         separation_measures = []
-        for row in range(len(self.data)):
+        for row in range(len(data)):
             s_positive = sum((weighted_normalized_decision_matrix[col][row] - ideal_solution[col]) ** 2 for col in range(len(ideal_solution))) ** 0.5
             s_negative = sum((weighted_normalized_decision_matrix[col][row] - negative_ideal_solution[col]) ** 2 for col in range(len(negative_ideal_solution))) ** 0.5
-            separation_measures.append((s_negative / (s_positive + s_negative), self.data[row][0]))  # (Closeness coefficient, alternative)
-        
-        # Rank the alternatives
+            separation_measures.append((s_negative / (s_positive + s_negative),) + tuple(data[row]))
+
         ranked_alternatives = sorted(separation_measures, key=lambda x: x[0], reverse=True)
-        return [[alternative] + values for values, alternative in ranked_alternatives]
+        return ranked_alternatives
+
+
 
     def electre(data):
         # This is a placeholder. ELECTRE usually involves a more complex procedure with concordance and discordance indices, thresholds, etc.
@@ -254,16 +332,6 @@ class ResultsWindow(QWidget):
         # This is a placeholder. VIKOR usually involves more complex computations including weighting, utility, and regret measures.
         return [sum(alternative[1:]) for alternative in data]  # placeholder, please replace with actual implementation
 
-    def setDataTable(self):
-        row_count = len(self.data)
-        col_count = len(self.data[0])
-        self.data_table.setRowCount(row_count)
-        self.data_table.setColumnCount(col_count)
-
-        for row_index, row_data in enumerate(self.data):
-            for col_index, cell_data in enumerate(row_data):
-                self.data_table.setItem(row_index, col_index, QTableWidgetItem(str(cell_data)))
-
 class AssessmentWindow(QWidget):
     def __init__(self, data):
         super(AssessmentWindow, self).__init__()
@@ -271,7 +339,7 @@ class AssessmentWindow(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(100, 100, 800, 400)
+        self.setGeometry(100, 100, 1300, 600)
         self.setWindowTitle('Assessment Window')
         self.selected_methods = []
         self.additional_inputs = {}
@@ -309,11 +377,11 @@ class AssessmentWindow(QWidget):
         font.setPointSize(12)
         self.info_widget.setFont(font)
         self.info_widget.setPlaceholderText("This widget displays information about the selected method.")
-        grid_layout.addWidget(self.info_widget, 0, 1)
+        grid_layout.addWidget(self.info_widget, 0, 2)
 
         self.resultsButton = QPushButton("Save and Continue")
         self.resultsButton.clicked.connect(lambda: self.showResults(self.data, self.selected_methods, self.read_input_fields()))
-        grid_layout.addWidget(self.resultsButton, 0, 2)
+        grid_layout.addWidget(self.resultsButton, 1, 2)
 
         # 3. Additional Section for Additional Inputs
         self.additional_inputs_group = QGroupBox("Additional Inputs")
@@ -321,7 +389,7 @@ class AssessmentWindow(QWidget):
         self.input_instruction_label = QLabel()
         self.form_layout.addRow(self.input_instruction_label)
         self.additional_inputs_group.setLayout(self.form_layout)
-        grid_layout.addWidget(self.additional_inputs_group, 1, 0, 1, 2)
+        grid_layout.addWidget(self.additional_inputs_group, 1, 0)
         grid_layout.setRowStretch(0, 1)  # Stretch the first row so that it takes up the available space
         grid_layout.setRowStretch(1, 0)  # Do not stretch the second row
         #self.additional_inputs_group.hide()  # Hide by default
@@ -334,7 +402,18 @@ class AssessmentWindow(QWidget):
         self.hide()        
         self.resultsWindow = ResultsWindow(data, methods, inputs)
         self.resultsWindow.show()
+        self.center_on_screen()
         self.show()        
+    
+    def showEvent(self, event):
+        self.center_on_screen()
+        super().showEvent(event)
+
+    def center_on_screen(self):
+        frame_geometry = self.frameGeometry()
+        screen_center = QDesktopWidget().availableGeometry().center()
+        frame_geometry.moveCenter(screen_center)
+        self.move(frame_geometry.topLeft())
     
     def read_input_fields(self):
         input_values = []
@@ -400,9 +479,6 @@ class AssessmentWindow(QWidget):
                 line_edit = QLineEdit()
                 self.form_layout.addRow(QLabel(label_str), line_edit)
                 self.additional_inputs[label_str] = line_edit  # Store the QLineEdit reference
-
-
-
 
 class CalculateAlternativesWindow(QDialog):
     def __init__(self):
@@ -929,11 +1005,23 @@ class CalculateAlternativesWindow(QWidget):
         # Window Setup
         self.setGeometry(100, 100, 1300, 600)  # Adjusted the window width
         self.setWindowTitle('DB Infological Model')
+        
+        self.center_on_screen()
         self.show()
         
         # Load Tables
         self.openFileNameDialog()
         
+    def showEvent(self, event):
+        self.center_on_screen()
+        super().showEvent(event)
+
+    def center_on_screen(self):
+        frame_geometry = self.frameGeometry()
+        screen_center = QDesktopWidget().availableGeometry().center()
+        frame_geometry.moveCenter(screen_center)
+        self.move(frame_geometry.topLeft())
+    
     def openFileNameDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
@@ -1024,8 +1112,19 @@ class App(QMainWindow):
         layout.addWidget(input_button)
         layout.addWidget(self.assessment_button)
 
+        self.center_on_screen()
         self.show()
 
+    def showEvent(self, event):
+        self.center_on_screen()
+        super().showEvent(event)
+
+    def center_on_screen(self):
+        frame_geometry = self.frameGeometry()
+        screen_center = QDesktopWidget().availableGeometry().center()
+        frame_geometry.moveCenter(screen_center)
+        self.move(frame_geometry.topLeft())
+    
     def calculate_alternatives(self):
         print("Calculating Alternatives...")
         self.dbwindow = CalculateAlternativesWindow()
@@ -1040,6 +1139,7 @@ class App(QMainWindow):
         if window.exec_() == QDialog.Accepted:  # QDialog.Accepted is returned when 'Save' is pressed
             self.alternatives_data = window.get_data()  # Store table data as state
             self.assessment_button.setEnabled(True)
+        self.center_on_screen()
         self.show()
 
     def assessment(self):
