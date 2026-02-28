@@ -8,6 +8,187 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+# Modern styling
+STYLE_SHEET = """
+QWidget {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 10pt;
+}
+
+QMainWindow {
+    background-color: #f0f0f0;
+}
+
+QMenuBar {
+    background-color: #2c3e50;
+    color: white;
+    padding: 4px;
+}
+
+QMenuBar::item {
+    background: transparent;
+    padding: 6px 12px;
+}
+
+QMenuBar::item:selected {
+    background: #34495e;
+}
+
+QMenuBar::item:pressed {
+    background: #3d566e;
+}
+
+QMenu {
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    color: #2c3e50;
+}
+
+QMenu::item {
+    padding: 6px 15px;
+}
+
+QMenu::item:selected {
+    background-color: #3498db;
+    color: white;
+}
+
+QGroupBox {
+    font-weight: bold;
+    border: 2px solid #bdc3c7;
+    border-radius: 8px;
+    margin-top: 1ex;
+    padding-top: 10px;
+    background-color: #ffffff;
+}
+
+QLabel {
+    color: #2c3e50;
+}
+
+QLineEdit {
+    border: 2px solid #bdc3c7;
+    border-radius: 4px;
+    padding: 5px;
+    background-color: #ffffff;
+    color: #2c3e50;
+}
+
+QLineEdit:focus {
+    border-color: #3498db;
+}
+
+QPushButton {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: bold;
+}
+
+QPushButton:hover {
+    background-color: #2980b9;
+}
+
+QPushButton:pressed {
+    background-color: #21618c;
+}
+
+QPushButton:disabled {
+    background-color: #bdc3c7;
+}
+
+QCheckBox {
+    spacing: 8px;
+    color: #2c3e50;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+}
+
+QCheckBox::indicator:unchecked {
+    border: 2px solid #bdc3c7;
+    border-radius: 3px;
+    background-color: #ffffff;
+}
+
+QCheckBox::indicator:checked {
+    border: 2px solid #3498db;
+    border-radius: 3px;
+    background-color: #3498db;
+    image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAFNJREFUeNpiYMAAXDx8/zEwMPzHweoAxAEhLiYmJvzGsiADGCA0VykmJib8xrIgA1gQGsOCrBEGJpLMxcXF/YeBAQECDAARSwqZkQmVVgAAAABJRU5ErkJggg==);
+}
+
+QTableWidget {
+    border: 2px solid #bdc3c7;
+    gridline-color: #ecf0f1;
+    background-color: #ffffff;
+    alternate-background-color: #f9f9f9;
+}
+
+QHeaderView::section {
+    background-color: #3498db;
+    color: white;
+    padding: 6px;
+    border: 1px solid #2980b9;
+    font-weight: bold;
+}
+
+QTabWidget::pane {
+    border: 2px solid #bdc3c7;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+QTabBar::tab {
+    background: #bdc3c7;
+    padding: 8px 16px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    margin-right: 2px;
+}
+
+QTabBar::tab:selected {
+    background: #3498db;
+    color: white;
+}
+
+QScrollBar:vertical {
+    background: #ecf0f1;
+    width: 15px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical {
+    background: #bdc3c7;
+    border-radius: 4px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #95a5a6;
+}
+
+QMessageBox {
+    background-color: #ecf0f1;
+}
+
+QProgressBar {
+    border: 2px solid #bdc3c7;
+    border-radius: 5px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+QProgressBar::chunk {
+    background-color: #3498db;
+    border-radius: 4px;
+}
+"""
+
 
 class MainWindow(QMainWindow):
     """Main application window"""
@@ -21,10 +202,15 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('MCDA Analysis Tool')
         self.setGeometry(100, 100, 1200, 800)
         
+        # Apply modern style sheet
+        self.setStyleSheet(STYLE_SHEET)
+        
         # Create central widget and layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
+        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(15, 15, 15, 15)
         
         # Create menu bar
         menubar = self.menuBar()
@@ -60,25 +246,28 @@ class MainWindow(QMainWindow):
         input_layout.addWidget(QLabel("Number of Alternatives:"), 0, 0)
         self.num_alternatives_input = QLineEdit()
         self.num_alternatives_input.setText("3")
+        self.num_alternatives_input.setPlaceholderText("Enter number of alternatives...")
         input_layout.addWidget(self.num_alternatives_input, 0, 1)
         
         # Number of criteria
         input_layout.addWidget(QLabel("Number of Criteria:"), 1, 0)
         self.num_criteria_input = QLineEdit()
         self.num_criteria_input.setText("4")
+        self.num_criteria_input.setPlaceholderText("Enter number of criteria...")
         input_layout.addWidget(self.num_criteria_input, 1, 1)
         
         # Weights input
         input_layout.addWidget(QLabel("Weights (comma-separated):"), 2, 0)
         self.weights_input = QLineEdit()
         self.weights_input.setText("0.25,0.25,0.25,0.25")
+        self.weights_input.setPlaceholderText("Enter weights separated by commas...")
         input_layout.addWidget(self.weights_input, 2, 1)
         
         # Methods selection
         methods_group = QGroupBox("MCDA Methods")
-        methods_layout = QVBoxLayout(methods_group)
+        methods_layout = QGridLayout(methods_group)  # Changed to QGridLayout for better organization
         
-        # Create checkboxes for methods
+        # Create checkboxes for methods in a grid layout
         self.method_checkboxes = {}
         methods = [
             'MINSUM', 'MINMAX', 'MAXMIN', 'DIP', 'TOPSIS',
@@ -86,11 +275,14 @@ class MainWindow(QMainWindow):
             'PROMETHEE', 'GRA', 'F-AHP', 'DEMATEL'
         ]
         
-        for method in methods:
+        # Arrange method checkboxes in a 4x4 grid
+        for idx, method in enumerate(methods):
+            row = idx // 4
+            col = idx % 4
             checkbox = QCheckBox(method)
             checkbox.setChecked(True)
             self.method_checkboxes[method] = checkbox
-            methods_layout.addWidget(checkbox)
+            methods_layout.addWidget(checkbox, row, col)
             
         # Data table
         data_group = QGroupBox("Data Table")
@@ -234,7 +426,12 @@ class ResultsWindow(QWidget):
         self.setWindowTitle("Analysis Results")
         self.setGeometry(150, 150, 1200, 800)
         
+        # Apply modern style sheet
+        self.setStyleSheet(STYLE_SHEET)
+        
         main_layout = QHBoxLayout()
+        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(15, 15, 15, 15)
         
         # Left side: Original data table
         left_layout = QVBoxLayout()
