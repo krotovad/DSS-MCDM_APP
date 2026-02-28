@@ -1,1 +1,48 @@
-Nothing should be ignored in this case, as the changes only include Python source files (.py) which are core project files and not build artifacts, dependencies, or temporary files.
+```
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Test reports and generated files
+test_report.html
+full_analysis_report.json
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Dependencies
+.venv/
+venv/
+node_modules/
+
+# Build artifacts
+dist/
+build/
+target/
+
+# Logs
+*.log
+
+# Editors
+.vscode/
+.idea/
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# MyPy
+.mypy_cache/
+
+# PyTest
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+```
