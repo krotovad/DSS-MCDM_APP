@@ -556,6 +556,18 @@ def dematel(matrix, weights):
     return ranks
 
 
+class MCDAData:
+    """
+    Класс для хранения данных для MCDA анализа
+    """
+    
+    def __init__(self, matrix, weights, criteria_names=None, alternatives_names=None):
+        self.matrix = np.array(matrix, dtype=float)
+        self.weights = np.array(weights, dtype=float)
+        self.criteria_names = criteria_names or [f"Criterion_{i+1}" for i in range(len(weights))]
+        self.alternatives_names = alternatives_names or [f"Alternative_{i+1}" for i in range(len(matrix))]
+
+
 def perform_analysis(data, methods, weights):
     """
     Perform analysis using selected methods
