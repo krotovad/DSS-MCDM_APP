@@ -82,7 +82,8 @@ class MainWindow(QMainWindow):
         self.method_checkboxes = {}
         methods = [
             'MINSUM', 'MINMAX', 'MAXMIN', 'DIP', 'TOPSIS',
-            'WSR', 'ELECTRE', 'VIKOR', 'ОРП', 'AHP', 'CHP'
+            'WSR', 'ELECTRE', 'VIKOR', 'ОРП', 'AHP', 'CHP',
+            'PROMETHEE', 'GRA', 'F-AHP', 'DEMATEL'
         ]
         
         for method in methods:

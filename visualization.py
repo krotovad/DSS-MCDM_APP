@@ -240,3 +240,144 @@ def create_performance_spider_chart(alternative_scores: List[List[float]],
     ax.legend(loc='upper right', bbox_to_anchor=(1.1, 1.1))
     
     return fig
+
+
+def create_scatter_plot_2d(data, criterion_x=0, criterion_y=1, title="2D Scatter Plot"):
+    """
+    Create a 2D scatter plot showing relationships between two criteria
+    
+    Args:
+        data: Data matrix to visualize
+        criterion_x: Index of the criterion to use as X-axis
+        criterion_y: Index of the criterion to use as Y-axis
+        title: Title for the plot
+        
+    Returns:
+        Matplotlib figure object
+    """
+    if len(data) == 0:
+        return None
+    
+    data = np.array(data)
+    x_values = data[:, criterion_x]
+    y_values = data[:, criterion_y]
+    
+    fig, ax = plt.subplots(figsize=(10, 8))
+    
+    scatter = ax.scatter(x_values, y_values, c=range(len(data)), cmap='viridis', alpha=0.7)
+    ax.set_xlabel(f'Criterion {criterion_x + 1}')
+    ax.set_ylabel(f'Criterion {criterion_y + 1}')
+    ax.set_title(title)
+    
+    # Add legend for points
+    for i in range(len(data)):
+        ax.annotate(f'A{i+1}', (x_values[i], y_values[i]), xytext=(5, 5), textcoords='offset points')
+    
+    plt.colorbar(scatter)
+    return fig
+
+
+def create_heatmap(data, title="Heatmap of Criteria Values"):
+    """
+    Create a heatmap showing the relationships between alternatives and criteria
+    
+    Args:
+        data: Data matrix to visualize
+        title: Title for the plot
+        
+    Returns:
+        Matplotlib figure object
+    """
+    if len(data) == 0:
+        return None
+    
+    data = np.array(data)
+    n_alternatives, n_criteria = data.shape
+    
+    fig, ax = plt.subplots(figsize=(10, 8))
+    
+    im = ax.imshow(data, cmap='viridis', aspect='auto')
+    
+    # Set ticks and labels
+    ax.set_xticks(range(n_criteria))
+    ax.set_yticks(range(n_alternatives))
+    ax.set_xticklabels([f'C{i+1}' for i in range(n_criteria)])
+    ax.set_yticklabels([f'A{i+1}' for i in range(n_alternatives)])
+    
+    ax.set_title(title)
+    ax.set_xlabel('Criteria')
+    ax.set_ylabel('Alternatives')
+    
+    # Rotate the x-axis labels to show them better
+    plt.xticks(rotation=45)
+    
+    # Add colorbar
+    plt.colorbar(im)
+    
+    # Add value annotations in each cell
+    for i in range(n_alternatives):
+        for j in range(n_criteria):
+            text = ax.text(j, i, f'{data[i, j]:.2f}',
+                           ha="center", va="center", color="white", fontsize=8)
+    
+    return fig
+
+
+def create_parallel_coordinates(data, method_name, criteria_names=None):
+    """
+    Create parallel coordinates plot for visualizing multi-dimensional data
+    
+    Args:
+        data: Data matrix to visualize
+        method_name: Name of the method used
+        criteria_names: Optional list of criterion names
+        
+    Returns:
+        Matplotlib figure object
+    """
+    if len(data) == 0:
+        return None
+    
+    data = np.array(data)
+    n_alternatives, n_criteria = data.shape
+    
+    if not criteria_names:
+        criteria_names = [f'C{i+1}' for i in range(n_criteria)]
+    
+    # Normalize data to 0-1 range
+    normalized_data = np.zeros_like(data)
+    for j in range(n_criteria):
+        min_val = np.min(data[:, j])
+        max_val = np.max(data[:, j])
+        if max_val != min_val:
+            normalized_data[:, j] = (data[:, j] - min_val) / (max_val - min_val)
+        else:
+            normalized_data[:, j] = 1.0
+    
+    fig, ax = plt.subplots(figsize=(12, 8))
+    
+    # Create y-axis scales for each criterion
+    y_scales = []
+    for j in range(n_criteria):
+        y_scales.append(np.linspace(0, 1, 100))
+    
+    # Plot each alternative as a line
+    for i in range(n_alternatives):
+        # Interpolate values to match y-scales
+        x_positions = np.arange(n_criteria)
+        y_values = normalized_data[i, :]
+        
+        # Create the line for this alternative
+        ax.plot(x_positions, y_values, linewidth=1, alpha=0.7, label=f'A{i+1}')
+    
+    ax.set_xticks(range(n_criteria))
+    ax.set_xticklabels(criteria_names)
+    ax.set_ylabel('Normalized Values')
+    ax.set_title(f'Parallel Coordinates Plot - {method_name}')
+    ax.grid(True, axis='x')
+    
+    # Add legend if there aren't too many alternatives
+    if n_alternatives <= 10:
+        ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    
+    return fig
