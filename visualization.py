@@ -97,7 +97,10 @@ def create_ranking_chart(ranks: List[int], method_name: str, title: Optional[str
     Returns:
         Matplotlib figure object
     """
-    fig, ax = plt.subplots(figsize=(10, 6))
+    from matplotlib.figure import Figure
+    
+    fig = Figure(figsize=(10, 6), tight_layout=True)
+    ax = fig.add_subplot(111)
     
     if not title:
         title = f'Alternative Rankings - {method_name}'
@@ -125,7 +128,10 @@ def create_comparison_chart(all_ranks: dict, title: Optional[str] = None):
     if not all_ranks:
         return None
         
-    fig, ax = plt.subplots(figsize=(12, 6))
+    from matplotlib.figure import Figure
+    
+    fig = Figure(figsize=(12, 6), tight_layout=True)
+    ax = fig.add_subplot(111)
     
     if not title:
         title = 'Comparison of Alternative Rankings Across Methods'
@@ -168,7 +174,10 @@ def create_weights_visualization(weights: List[float], criteria_names: Optional[
     Returns:
         Matplotlib figure object
     """
-    fig, ax = plt.subplots(figsize=(10, 6))
+    from matplotlib.figure import Figure
+    
+    fig = Figure(figsize=(10, 6), tight_layout=True)
+    ax = fig.add_subplot(111)
     
     if not criteria_names:
         criteria_names = [f'C{i+1}' for i in range(len(weights))]
@@ -216,7 +225,10 @@ def create_performance_spider_chart(alternative_scores: List[List[float]],
     range_vals[range_vals == 0] = 1
     normalized_scores = (scores_array - min_vals) / range_vals
     
-    fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(projection='polar'))
+    from matplotlib.figure import Figure
+    
+    fig = Figure(figsize=(10, 10), tight_layout=True)
+    ax = fig.add_subplot(111, projection='polar')
     
     # Compute angle for each criterion
     angles = np.linspace(0, 2 * np.pi, n_criteria, endpoint=False).tolist()
@@ -262,7 +274,12 @@ def create_scatter_plot_2d(data, criterion_x=0, criterion_y=1, title="2D Scatter
     x_values = data[:, criterion_x]
     y_values = data[:, criterion_y]
     
-    fig, ax = plt.subplots(figsize=(10, 8))
+    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+    from matplotlib.figure import Figure
+    
+    # Create figure using Figure directly instead of pyplot to avoid conflicts
+    fig = Figure(figsize=(10, 8), tight_layout=True)
+    ax = fig.add_subplot(111)
     
     scatter = ax.scatter(x_values, y_values, c=range(len(data)), cmap='viridis', alpha=0.7)
     ax.set_xlabel(f'Criterion {criterion_x + 1}')
@@ -273,7 +290,7 @@ def create_scatter_plot_2d(data, criterion_x=0, criterion_y=1, title="2D Scatter
     for i in range(len(data)):
         ax.annotate(f'A{i+1}', (x_values[i], y_values[i]), xytext=(5, 5), textcoords='offset points')
     
-    plt.colorbar(scatter)
+    fig.colorbar(scatter)
     return fig
 
 
@@ -294,7 +311,10 @@ def create_heatmap(data, title="Heatmap of Criteria Values"):
     data = np.array(data)
     n_alternatives, n_criteria = data.shape
     
-    fig, ax = plt.subplots(figsize=(10, 8))
+    from matplotlib.figure import Figure
+    
+    fig = Figure(figsize=(10, 8), tight_layout=True)
+    ax = fig.add_subplot(111)
     
     im = ax.imshow(data, cmap='viridis', aspect='auto')
     
@@ -309,10 +329,10 @@ def create_heatmap(data, title="Heatmap of Criteria Values"):
     ax.set_ylabel('Alternatives')
     
     # Rotate the x-axis labels to show them better
-    plt.xticks(rotation=45)
+    ax.tick_params(axis='x', rotation=45)
     
     # Add colorbar
-    plt.colorbar(im)
+    fig.colorbar(im)
     
     # Add value annotations in each cell
     for i in range(n_alternatives):
@@ -354,7 +374,10 @@ def create_parallel_coordinates(data, method_name, criteria_names=None):
         else:
             normalized_data[:, j] = 1.0
     
-    fig, ax = plt.subplots(figsize=(12, 8))
+    from matplotlib.figure import Figure
+    
+    fig = Figure(figsize=(12, 8), tight_layout=True)
+    ax = fig.add_subplot(111)
     
     # Create y-axis scales for each criterion
     y_scales = []
