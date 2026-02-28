@@ -4,6 +4,8 @@ Contains all PyQt-based GUI components
 """
 
 import sys
+import pandas as pd
+import numpy as np
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -312,16 +314,26 @@ class MainWindow(QMainWindow):
         
     def load_data(self):
         """Load data from file"""
-        options = QFileDialog.Options()
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "Load Data File", "", 
-            "Excel Files (*.xlsx);;CSV Files (*.csv);;All Files (*)", 
-            options=options
-        )
-        
-        if file_path:
-            # Load data implementation would go here
-            pass
+        # Open the import data dialog
+        from ui_components import ImportDataDialog
+        dialog = ImportDataDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            # Update the main window's data table with imported data
+            imported_data = dialog.get_imported_data()
+            if imported_data:
+                self.update_data_table(imported_data)
+    
+    def update_data_table(self, data):
+        """Update the main data table with imported data"""
+        if data:
+            self.data_table.setRowCount(len(data))
+            self.data_table.setColumnCount(len(data[0]) if data else 0)
+            self.data_table.setHorizontalHeaderLabels([f"Criterion {i+1}" for i in range(len(data[0]) if data else 0)])
+            
+            for i, row in enumerate(data):
+                for j, val in enumerate(row):
+                    item = QTableWidgetItem(str(val))
+                    self.data_table.setItem(i, j, item)
             
     def save_results(self):
         """Save analysis results"""
@@ -406,6 +418,187 @@ class MainWindow(QMainWindow):
     def show_about(self):
         """Show about dialog"""
         QMessageBox.about(self, "About", "MCDA Analysis Tool\nVersion 1.0")
+
+
+class ImportDataDialog(QDialog):
+    """Dialog for importing data with preview and manual correction"""
+    
+    def __init__(self, parent=None):
+        super(ImportDataDialog, self).__init__(parent)
+        self.imported_data = None
+        self.initUI()
+        
+    def initUI(self):
+        """Initialize the import dialog UI"""
+        self.setWindowTitle("Import Data")
+        self.setGeometry(150, 150, 1000, 700)
+        
+        # Apply modern style sheet
+        self.setStyleSheet(STYLE_SHEET)
+        
+        main_layout = QVBoxLayout()
+        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+        
+        # File selection group
+        file_group = QGroupBox("Select Data File")
+        file_layout = QHBoxLayout(file_group)
+        
+        self.file_path_label = QLabel("No file selected")
+        self.file_path_label.setWordWrap(True)
+        
+        browse_btn = QPushButton("Browse...")
+        browse_btn.clicked.connect(self.browse_file)
+        
+        file_layout.addWidget(self.file_path_label)
+        file_layout.addWidget(browse_btn)
+        
+        # Preview group
+        preview_group = QGroupBox("Data Preview")
+        preview_layout = QVBoxLayout(preview_group)
+        
+        self.preview_table = QTableWidget()
+        self.preview_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
+        
+        preview_layout.addWidget(self.preview_table)
+        
+        # Import options
+        options_group = QGroupBox("Import Options")
+        options_layout = QGridLayout(options_group)
+        
+        # Headers option
+        self.headers_checkbox = QCheckBox("First row contains headers")
+        self.headers_checkbox.setChecked(True)
+        options_layout.addWidget(self.headers_checkbox, 0, 0)
+        
+        # Data type detection
+        options_layout.addWidget(QLabel("Data Format:"), 1, 0)
+        self.format_combo = QComboBox()
+        self.format_combo.addItems(["Auto-detect", "Numeric", "Text"])
+        options_layout.addWidget(self.format_combo, 1, 1)
+        
+        # Buttons
+        button_layout = QHBoxLayout()
+        
+        import_btn = QPushButton("Import")
+        import_btn.clicked.connect(self.import_data)
+        import_btn.setEnabled(False)
+        self.import_btn = import_btn
+        
+        cancel_btn = QPushButton("Cancel")
+        cancel_btn.clicked.connect(self.reject)
+        
+        button_layout.addWidget(import_btn)
+        button_layout.addWidget(cancel_btn)
+        
+        # Add all widgets to main layout
+        main_layout.addWidget(file_group)
+        main_layout.addWidget(preview_group)
+        main_layout.addWidget(options_group)
+        main_layout.addLayout(button_layout)
+        
+        self.setLayout(main_layout)
+        
+        # Connect signals
+        self.headers_checkbox.stateChanged.connect(self.update_preview)
+    
+    def browse_file(self):
+        """Open file browser to select data file"""
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Select Data File", "", 
+            "Excel Files (*.xlsx);;CSV Files (*.csv);;All Files (*)", 
+            options=options
+        )
+        
+        if file_path:
+            self.file_path = file_path
+            self.file_path_label.setText(file_path)
+            self.import_btn.setEnabled(True)
+            self.load_preview()
+    
+    def load_preview(self):
+        """Load and display data preview"""
+        if hasattr(self, 'file_path'):
+            try:
+                # Determine file type and load accordingly
+                if self.file_path.endswith('.xlsx'):
+                    df = pd.read_excel(self.file_path)
+                elif self.file_path.endswith('.csv'):
+                    df = pd.read_csv(self.file_path)
+                else:
+                    # Try reading as CSV by default
+                    df = pd.read_csv(self.file_path)
+                
+                # Store original data
+                self.original_df = df.copy()
+                
+                # Update preview table
+                self.update_preview()
+                
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Could not load file: {str(e)}")
+    
+    def update_preview(self):
+        """Update the preview table based on current settings"""
+        if hasattr(self, 'original_df'):
+            df = self.original_df.copy()
+            
+            # Apply header settings
+            if not self.headers_checkbox.isChecked():
+                df.columns = [f"Column_{i}" for i in range(len(df.columns))]
+            else:
+                # Use first row as headers
+                df_header = df.iloc[0]
+                df = df[1:].reset_index(drop=True)
+                df.columns = df_header.values
+            
+            # Update table dimensions
+            self.preview_table.setRowCount(len(df))
+            self.preview_table.setColumnCount(len(df.columns))
+            self.preview_table.setHorizontalHeaderLabels([str(col) for col in df.columns])
+            
+            # Populate table
+            for i in range(len(df)):
+                for j in range(len(df.columns)):
+                    value = df.iloc[i, j]
+                    item = QTableWidgetItem(str(value) if pd.notna(value) else "")
+                    self.preview_table.setItem(i, j, item)
+    
+    def import_data(self):
+        """Import the data with current settings"""
+        if hasattr(self, 'original_df'):
+            df = self.original_df.copy()
+            
+            # Apply header settings
+            if not self.headers_checkbox.isChecked():
+                df.columns = [f"Column_{i}" for i in range(len(df.columns))]
+            else:
+                # Use first row as headers
+                df_header = df.iloc[0]
+                df = df[1:].reset_index(drop=True)
+                df.columns = df_header.values
+            
+            # Convert to numeric where possible
+            for col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='ignore')
+            
+            # Extract just the numeric data for the main application
+            numeric_df = df.select_dtypes(include=[np.number])
+            if numeric_df.empty:
+                # If no numeric columns, try to convert all columns to numeric
+                for col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+                numeric_df = df.select_dtypes(include=[np.number])
+            
+            # Convert to list of lists for compatibility
+            self.imported_data = numeric_df.values.tolist()
+            
+            self.accept()
+    
+    def get_imported_data(self):
+        """Return the imported data"""
+        return self.imported_data
 
 
 class ResultsWindow(QWidget):
