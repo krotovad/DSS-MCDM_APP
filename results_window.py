@@ -22,8 +22,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
-class ResultsWindow(QWidget):
-    """Window to display analysis results with enhanced visualization"""
+class ResultsWindow(QMainWindow):
+    """Window to display analysis results with enhanced visualization, designed as a proper window with menu bar and status bar"""
     
     def __init__(self, data, methods, inputs, results, parent=None):
         super(ResultsWindow, self).__init__(parent)
@@ -40,7 +40,40 @@ class ResultsWindow(QWidget):
         self.setWindowTitle("Analysis Results with Visualization")
         self.setGeometry(150, 150, 1400, 900)
         
-        main_layout = QHBoxLayout()
+        # Apply the same styling as the main window
+        from ui_components import STYLE_SHEET
+        self.setStyleSheet(STYLE_SHEET)
+        
+        # Create central widget and layout
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+        
+        # Create menu bar
+        menubar = self.menuBar()
+        
+        # File menu
+        file_menu = menubar.addMenu('File')
+        
+        save_action = QAction('Save Report', self)
+        save_action.triggered.connect(self.save_report)
+        file_menu.addAction(save_action)
+        
+        close_action = QAction('Close', self)
+        close_action.triggered.connect(self.close)
+        file_menu.addAction(close_action)
+        
+        # Help menu
+        help_menu = menubar.addMenu('Help')
+        
+        about_action = QAction('About', self)
+        about_action.triggered.connect(self.show_about)
+        help_menu.addAction(about_action)
+        
+        # Status bar
+        self.statusBar().showMessage('Analysis Results Loaded')
         
         # Left side: Navigation panel
         nav_layout = QVBoxLayout()
@@ -91,8 +124,9 @@ class ResultsWindow(QWidget):
         
         right_layout.addWidget(self.stacked_widget)
         
-        # Buttons
-        button_layout = QHBoxLayout()
+        # Buttons - moved to separate group
+        button_group = QGroupBox("Actions")
+        button_layout = QHBoxLayout(button_group)
         
         close_btn = QPushButton("Close")
         close_btn.clicked.connect(self.close)
@@ -102,7 +136,7 @@ class ResultsWindow(QWidget):
         save_btn.clicked.connect(self.save_report)
         button_layout.addWidget(save_btn)
         
-        right_layout.addLayout(button_layout)
+        right_layout.addWidget(button_group)
         
         # Combine layouts
         main_layout.addLayout(nav_layout, 1)
@@ -416,6 +450,11 @@ class ResultsWindow(QWidget):
             msg.setInformativeText(f"Report would be saved to: {file_path}")
             msg.setWindowTitle("Report Generation")
             msg.exec_()
+
+
+    def show_about(self):
+        """Show about dialog"""
+        QMessageBox.about(self, "About", "MCDA Analysis Tool - Results Window\nVersion 1.0")
 
 
 if __name__ == "__main__":

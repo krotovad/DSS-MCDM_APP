@@ -1,4 +1,1 @@
-```
-__pycache__/
-*.pyc
-```
+(results_window.py is a source file, so no .gitignore rules needed)
